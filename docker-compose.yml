@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: fuel_delivery
+      POSTGRES_USER: fuel_user
+      POSTGRES_PASSWORD: fuel_password
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://fuel_user:fuel_password@postgres:5432/fuel_delivery
+      BOT_TOKEN: ${BOT_TOKEN}
+      WEBHOOK_URL: ${WEBHOOK_URL}
+      MINI_APP_URL: ${MINI_APP_URL}
+      ADMIN_TELEGRAM_IDS: ${ADMIN_TELEGRAM_IDS}
+      NODE_ENV: production
+      PORT: 3000
+
+volumes:
+  postgres_data:

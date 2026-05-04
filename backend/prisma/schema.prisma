@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  telegramId    String   @unique
+  username      String?
+  firstName     String
+  lastName      String?
+  loyaltyPoints Int      @default(0)
+  role          UserRole @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  orders        Order[]
+
+  @@map("users")
+}
+
+model Order {
+  id               Int         @id @default(autoincrement())
+  userId           Int
+  user             User        @relation(fields: [userId], references: [id])
+  fuelType         FuelType
+  quantity         Float
+  pricePerLiter    Float
+  totalPrice       Float
+  deliveryFee      Float
+  pointsUsed       Int         @default(0)
+  pointsEarned     Int
+  deliveryAddress  String
+  deliveryLat      Float
+  deliveryLng      Float
+  deliveryTime     DateTime
+  status           OrderStatus @default(PENDING)
+  paymentId        String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model FuelPrice {
+  id        Int      @id @default(autoincrement())
+  fuelType  FuelType @unique
+  price     Float
+  updatedAt DateTime @updatedAt
+  updatedBy Int
+
+  @@map("fuel_prices")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum FuelType {
+  DIESEL
+  AI95
+  AI92
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_DELIVERY
+  DELIVERED
+  CANCELLED
+}
